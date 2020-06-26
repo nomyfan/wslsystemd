@@ -1,18 +1,18 @@
 #!/bin/bash
 
-pids=$(pidof systemd)
+systemd_pid=
 
-if [ -z $pids ]; then
-	echo No systemd found, creating a new one...
-	nohup unshare -fp --propagation shared --mount-proc systemd >/dev/null 2>&1 &
-	echo Done. Please run again
-	exit 0
-else
-	for pid in $pids
+if [ -z $(pidof systemd) ]; then
+	daemonize /usr/bin/unshare -fp --propagation shared --mount-proc systemd
+fi
+
+while [ -z $systemd_pid ]
+do
+	for pid in $(pidof systemd)
 	do
 		systemd_pid=$pid
 	done
-fi
+done
 
 if [ -z $WHO ]; then
 	WHO=root
